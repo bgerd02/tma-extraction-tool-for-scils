@@ -2,8 +2,9 @@
 Entry point for the single-cell/TMA extraction tool
 '''
 
-from nicegui import ui
+from nicegui import ui, app
 from pages import page1, page2, page3, page4
+import state
 
 ui.add_head_html('''
 <style>
@@ -24,3 +25,11 @@ ui.run(
     native=True,         # Opens as a desktop window instead of browser
     reload=False         # Disable auto-reload in production
 )
+
+
+@app.on_shutdown
+def close_session():
+    if state.session is not None:
+        try: state.session.__exit__(None, None, None)
+        except Exception as e:
+            print(f'Error closing session: {e!r}')

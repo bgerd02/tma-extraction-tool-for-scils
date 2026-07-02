@@ -13,12 +13,19 @@ exe_path = r'C:\Users\AngelLab\Desktop\SCiLS Lab\scilsMsServer.exe'         # Ne
 def page1():
 # Button event handler(s)
     def handle_next_page1():
-        state.slx_path = slx_path
+        state.slx_path = slx_path.value
 
-        with LocalSession(slx_path, executable=exe_path) as session:
-            state.dataset = session.dataset_proxy
+        try:
+            state.session = LocalSession(state.slx_path, executable=exe_path)
+            state.session.__enter__()
+            state.dataset = state.session.dataset_proxy
+            state.feature_lists = get_feature_lists(state.slx_path)
+        except Exception as e:
+            ui.notify(f'Failed to open SCiLS session: {e}', type='negative')
+            print(f'LocalSession error: {e!r}')
+            state.session = None
+            return
 
-        state.feature_lists = get_feature_lists(slx_path)
         ui.navigate.to('/page2')
 
 
