@@ -2,30 +2,34 @@
 Script for visual elements of page 3 of TMA Extraction Tool for SCiLS (TMAET for SCiLS)
 '''
 from nicegui import ui
-from logic import check_for_attribute
+#from logic import check_for_attribute
 import state
 
 
 @ui.page('/page3')
+def page3():
+    def handle_attribute_check():
+        #num_regions, num_pixels = check_for_attribute(state.attribute)
+        print('heyyy')
 
-def handle_attribute_check():
-    num_regions, num_pixels = check_for_attribute(state.attribute)
-
-def handle_next_page3():
-    ui.navigate.to('/page4')
+    def handle_next_page3():
+        state.attribute = attribute.value
+        ui.navigate.to('/page4')
 
 
-### Rendering logic ###
-ui.label('Enter the attribute of the region(s) you would like to extract')
+    ### Rendering logic ###
+    ui.label('Enter the attribute of the region(s) you would like to extract')
 
-state.attribute = ui.input(label='Region attribute', placeholder='ex. stage 1')
-ui.button('Check existance/abundance of attribute', on_click= handle_attribute_check())
-# show result of check existance button
+    attribute = ui.input(label='Region attribute', placeholder='ex. stage 1')
+    ui.button('Check existance/abundance of attribute', on_click= handle_attribute_check)
+    # show result of check existance button
 
-ui.checkbox('Extract all')
+    all_checkbox = ui.checkbox('Extract all')
+    
 
-ui.button('Back', on_click=lambda: ui.navigate.to('/'))
-ui.button('Next', on_click=handle_next_page3())
+    ui.button('Back', on_click=lambda: ui.navigate.to('/page2'))
+    ui.button('Next', on_click=handle_next_page3).bind_enabled_from(attribute or all_checkbox, 'value')
+
 
 ### TODO
 # have loading thing associated with check existance button

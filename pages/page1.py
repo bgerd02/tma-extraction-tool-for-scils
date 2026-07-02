@@ -3,24 +3,24 @@ Script for visual elements of page 1 of TMA Extraction Tool for SCiLS (TMAET for
 '''
 
 from nicegui import ui
-from logic import get_feature_lists
+#from logic import get_feature_lists
 import state
 
-@ui.page('/page1')
-
+@ui.page('/')
+def page1():
 # Button event handler(s)
-def handle_next_page1():
-    state.slx_path = slx_path
-    state.feature_lists = get_feature_lists(slx_path)
-    ui.navigate.to('/page2')
+    def handle_next_page1():
+        state.slx_path = slx_path
+        #state.feature_lists = get_feature_lists(slx_path)
+        ui.navigate.to('/page2')
 
 
-#### Rendering logic ####
-ui.label('TMAET for SCiLS')
+    #### Rendering logic ####
+    ui.label('TMAET for SCiLS')
 
-slx_path = ui.input(label='Path to .slx file:', placeholder=r'ex. C:\Users\AngelLab\Desktop\slcc_heavy.slx')
+    slx_path = ui.input(label='Path to .slx file:', placeholder=r'ex. C:\Users\AngelLab\Desktop\slcc_heavy.slx')
 
-ui.button('Next', on_click=handle_next_page1())
+    ui.button('Next', on_click=handle_next_page1).bind_enabled_from(slx_path, 'value')
 
 
 # TODO
