@@ -6,6 +6,7 @@ import json
 import pandas as pd 
 import numpy as np
 from scilslab import LocalSession
+import state
 
 
 def get_feature_lists(path_to_slx_file):        # called once page 1 'Next' button is clicked
@@ -13,7 +14,7 @@ def get_feature_lists(path_to_slx_file):        # called once page 1 'Next' butt
 
         Creates:  feature_lists_df (DataFrame): one row per feature list with columns id, name, number of features        
     '''
-    feature_lists = dataset.feature_table.get_feature_lists()
+    feature_lists = state.dataset.feature_table.get_feature_lists()
     feature_lists_df = pd.DataFrame(feature_lists)
     feature_lists_df = feature_lists_df.drop(columns=['has_mz_features', 'has_mobility_intervals', 'has_ccs_features', 'has_external_features'])
     print(feature_lists_df.head())
@@ -25,7 +26,7 @@ def get_spots_in_region(regionId):
 
         Returns: region_spots_df (DataFrame): one row per spot with columns spotId, x, y  
     '''
-    region_spots = dataset.get_region_spots(regionId)
+    region_spots = state.dataset.get_region_spots(regionId)
     region_spots_df = pd.DataFrame(region_spots).drop(columns=['raster', 'z'])
     print(region_spots.keys())
     return region_spots_df
@@ -47,7 +48,7 @@ def get_intensities_of_region(regionId, features, normalization):
         Returns: coords_and_intensities (DataFrame): one row per spot with columns spotId, x, y, peak1, peak2, peak3... for a passed region        
     '''
     for mz_low, mz_high in features:
-        intensities = dataset.get_ion_intensities(     # intensities is an object with two arrays: spot_ids and values (prealigned)
+        intensities = state.dataset.get_ion_intensities(     # intensities is an object with two arrays: spot_ids and values (prealigned)
             min_mz=mz_low, max_mz=mz_high, 
             region_id = regionId,
             mode='area',
@@ -63,11 +64,11 @@ def get_intensities_of_region(regionId, features, normalization):
 
 
 def extract_spots(          # called in page 3
-        normalization=normalization, 
-        feature_list=feature_list, 
-        attribute=attribute, 
-        export_type=export_type,
-        output_directory=output_directory
+        normalization=None, 
+        feature_list=None, 
+        attribute=None, 
+        export_type=None,
+        output_directory=None
     ):
     # if attribute:
         #region_list = get_regions_with_attribute(attribute)
