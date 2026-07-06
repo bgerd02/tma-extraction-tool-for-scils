@@ -23,8 +23,8 @@ def page2():
 
     feature_list = ui.select(
         label='Select feature list:',
-        options= [list for list in state.feature_lists],
-        value= state.feature_lists[0]   # default value
+        options= state.feature_lists['name'].tolist(),
+        value= state.feature_lists['name'].iloc[0]  # default value
     )
 
     normalization= ui.select(

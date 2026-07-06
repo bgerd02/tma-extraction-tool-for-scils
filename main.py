@@ -13,19 +13,15 @@ ui.add_head_html('''
     background: #333; 
     color: #999; 
 }
-.input-wide { 
-    width:390px; 
+.q-page, .nicegui-content {
+    width: 100%;
+    padding: 5px; 
+}
+.q-field { 
+    width:100%; 
 }
 </style>                                  
 ''', shared=True)
-
-ui.run(
-    title='TMA Extraction Tool for SCiLS',      # Browser tab title
-    port=8080,           # Default, but explicit is fine
-    native=True,         # Opens as a desktop window instead of browser
-    reload=False         # Disable auto-reload in production
-)
-
 
 @app.on_shutdown
 def close_session():
@@ -33,3 +29,10 @@ def close_session():
         try: state.session.__exit__(None, None, None)
         except Exception as e:
             print(f'Error closing session: {e!r}')
+
+ui.run(
+    title='TMA Extraction Tool for SCiLS',      # Browser tab title
+    port=8080,           # Default, but explicit is fine
+    native=True,         # Opens as a desktop window instead of browser
+    reload=False         # Disable auto-reload in production
+)

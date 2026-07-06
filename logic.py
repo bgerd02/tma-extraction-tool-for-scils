@@ -32,13 +32,22 @@ def get_spots_in_region(regionId):
     return region_spots_df
 
 
-def check_for_attribute(attribute):         # called in page 2
-    # get region list with passed attribute
+def check_for_attribute():         # called in page 2
+    ''' Get list of regions that have passed attribute'''
+    region_tree = state.dataset.get_region_tree()       # all regions
+    region_list = []
+    # Collect list of regions that do not contain a subregion
+    for region in region_tree.get_all_regions():
+        if len(region.subregions) == 0:
+            name = region.name[region.name.rfind('/')+1:]
+            region_list.append((region.id, name, region.attributes))
+    region_list_df = pd.DataFrame(region_list, columns=('id', 'name', 'attribute'))
+    print(region_list_df.head())
+    print(f'Filtering for: {repr(state.attribute)} with type: {type(state.attribute)}')    #debug
+    filtered_df = region_list_df[region_list_df['attribute'].apply(lambda a: state.attribute in a.values())]
+    num_regions = len(filtered_df)
+    return num_regions
 
-    num_pixels = 0
-    # for each region in region list, region_spots_df = get_spots_in_region, then num_pixels += len(region_spots_df)
-    print('heyyy')
-    #return num_regions, num_pixels
 
 
 def get_intensities_of_region(regionId, features, normalization):
