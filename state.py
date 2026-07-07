@@ -13,3 +13,6 @@ normalization = None
 feature_list = []       # selected feature list
 
 attribute = None
+
+export_type = '.txt'
+output_path = None

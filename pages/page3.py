@@ -9,6 +9,7 @@ import state
 @ui.page('/page3')
 def page3():
     def handle_attribute_check():
+        state.attribute = attribute.value
         num_regions = check_for_attribute()
         result_label.text = f'Found {num_regions} region(s) with this attribute.'
 
