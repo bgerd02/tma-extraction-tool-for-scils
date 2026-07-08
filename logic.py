@@ -87,8 +87,8 @@ def get_root_region():
         if parent_path == 'Regions':
             region_list.append((region.id, region.name, region.attributes))
     
-    region_list.sort(key=lambda x: x[2])
-    parent_region_df = pd.DataFrame(region_list, columns=('id', 'name', 'full name'))
+    region_list.sort(key=lambda x: x[0])
+    parent_region_df = pd.DataFrame(region_list, columns=('id', 'name', 'attribute'))
     return parent_region_df
 
 def get_regions_with_attribute():
@@ -152,3 +152,4 @@ def extract_spots():
     else:
         intensities.to_csv(os.path.join(state.output_path, f'intensities_{state.attribute}.csv'), index=False)
 
+    print('Extraction complete!')
