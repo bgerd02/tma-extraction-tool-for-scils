@@ -14,5 +14,5 @@ feature_list = []       # selected feature list
 
 attribute = None
 
-export_type = '.txt'
+export_type = None
 output_path = None

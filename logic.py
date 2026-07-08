@@ -60,7 +60,9 @@ def get_intensities_of_region(regionId, features):
 
         Returns: coords_and_intensities (DataFrame): one row per spot with columns spotId, x, y, peak1, peak2, peak3... for a passed region        
     '''
-    for mz_low, mz_high in features:
+    coords_and_intensities = get_spots_in_region(regionId)
+    for _, feature in features.iterrows(): 
+        mz_low, mz_high = feature['mz_low'], feature['mz_high']
         intensities = state.dataset.get_ion_intensities(     # intensities is an object with two arrays: spot_ids and values (prealigned)
             min_mz=mz_low, max_mz=mz_high, 
             region_id = regionId,
@@ -68,13 +70,11 @@ def get_intensities_of_region(regionId, features):
             normalization_id=state.normalization
         )
         intensities_df = pd.DataFrame({
-            'spotId':intensities.spot_ids,
+            'spot_id':intensities.spot_ids,
             f'{mz_low:.3f}_{mz_high:.3f}':intensities.values
         }) 
-        all_spots =  get_spots_in_region(regionId)      # Get spot ids and coords 
-        coords_and_intensities = pd.merge(all_spots, intensities_df, how='outer', on='spotId')
-    c_and_i_df = pd.DataFrame(coords_and_intensities)
-    return c_and_i_df
+        coords_and_intensities = pd.merge(coords_and_intensities, intensities_df, how='outer', on='spot_id')
+    return coords_and_intensities
     
 
 def get_root_region():
@@ -85,12 +85,10 @@ def get_root_region():
         parent_path = clean_name.rsplit('/', 1)[0] if '/' in clean_name else clean_name
 
         if parent_path == 'Regions':
-            short_name = clean_name[clean_name.rsplit('/', 1)[-1]]
-            region_list.append((region.id, short_name, region.name))
+            region_list.append((region.id, region.name, region.attributes))
     
     region_list.sort(key=lambda x: x[2])
-
-    parent_region_df = pd.DataFrame(region_list, columns=('id', 'short name', 'full name'))
+    parent_region_df = pd.DataFrame(region_list, columns=('id', 'name', 'full name'))
     return parent_region_df
 
 def get_regions_with_attribute():
@@ -113,10 +111,20 @@ def get_regions_with_attribute():
     return filtered_df
 
 def extract_spots():
-    '''
+    '''Extracts feature intensities for all spots in one or more regions and exports them to file.
+
+        Regions are either those matching state.attribute (if set) or all top-level 
+        regions under 'Regions' (if not). For each region, merges spot coordinates 
+        with intensities for every feature in state.feature_list, then saves the 
+        combined result as .txt or .csv to state.output_path.
+
+        Reads from state: dataset, feature_list, attribute, normalization, 
+        export_type, output_path
     '''
     ## Get features in feature list
     features =  state.dataset.feature_table.get_features(feature_list_name=state.feature_list)
+    print(type(features))       #debug
+    print(features)     #debug
     
     ## Get list of regions based on whether attribute was passed or not
     print('Getting region(s)...')
@@ -128,10 +136,10 @@ def extract_spots():
     ## Extract intensities for each spot
     intensities = []
     for index, region in region_list.iterrows(): 
-        id = region['id'] if region['id'] else region['short name']
-        region_spots = get_intensities_of_region(id, features)
-        region_spots['regionId'] = id 
+        region_spots = get_intensities_of_region(region['id'], features)
+        region_spots['regionId'] = region['id']
         region_spots['regionName'] = region['name']
+        region_spots['attributes'] = json.dumps(region['attribute'])
         intensities.append(region_spots)
 
     intensities = pd.concat(intensities, ignore_index=True)
@@ -141,6 +149,6 @@ def extract_spots():
     if state.export_type == '.txt': 
         intensities.to_csv(os.path.join(state.output_path, f'intensities_{state.attribute}.txt'), sep='\t', index=False)
     
-    elif state.export_type == '.csv':
+    else:
         intensities.to_csv(os.path.join(state.output_path, f'intensities_{state.attribute}.csv'), index=False)
 
