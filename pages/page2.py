@@ -29,9 +29,9 @@ def page2():
 
     normalization= ui.select(
         label='Select normalization method:',
-        options=['Total Ion Count', 'Root Mean Square', 'None'],
+        options=state.normalization_types['description'].tolist(),
         value='Total Ion Count'     # default value
     )
 
-    ui.button('Back', on_click=lambda: ui.navigate.to('/'))
+    ui.button('Back', on_click=lambda: ui.navigate.to('/page1'))
     ui.button('Next', on_click=handle_next_page2).bind_enabled_from(feature_list, 'value')

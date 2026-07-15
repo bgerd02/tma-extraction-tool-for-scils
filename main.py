@@ -3,7 +3,7 @@ Entry point for the single-cell/TMA extraction tool
 '''
 
 from nicegui import ui, app
-from pages import page1, page2, page3, page4
+from pages import page0, page1, page2, page3, page4
 import state
 
 ui.add_head_html('''
@@ -19,6 +19,12 @@ ui.add_head_html('''
 }
 .q-field { 
     width:100%; 
+}
+.q-card {
+    width:100%
+}
+.q-input {
+    white-space: pre-wrap;                 
 }
 </style>                                  
 ''', shared=True)

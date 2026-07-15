@@ -9,7 +9,7 @@ from scilslab import LocalSession
 import state
 
 
-def get_feature_lists(path_to_slx_file):        # called once page 1 'Next' button is clicked
+def get_feature_lists():        # called once page 1 'Next' button is clicked
     '''Gets list of all feature lists with their id, name, and number of features in each list
 
         Creates:  feature_lists_df (DataFrame): one row per feature list with columns id, name, number of features        
@@ -19,6 +19,16 @@ def get_feature_lists(path_to_slx_file):        # called once page 1 'Next' butt
     feature_lists_df = feature_lists_df.drop(columns=['has_mz_features', 'has_mobility_intervals', 'has_ccs_features', 'has_external_features'])
     print(feature_lists_df.head())
     return feature_lists_df
+
+def get_normalization_types():
+    '''
+        Returns: normalization_types_df (DataFrame): one row per normalization type with columns uniqueId and description (also indexed maybe)
+    '''
+    normalization_types = state.dataset.get_normalizations() 
+    normalization_types_df = pd.DataFrame(
+        list(normalization_types.items()), columns=['uniqueId', 'description']
+    )
+    return normalization_types_df
 
 
 def get_spots_in_region(regionId):      
