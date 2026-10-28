@@ -32,6 +32,6 @@ def page2():
         options=state.normalization_types['description'].tolist(),
         value='Total Ion Count'     # default value
     )
-
-    ui.button('Back', on_click=lambda: ui.navigate.to('/page1'))
-    ui.button('Next', on_click=handle_next_page2).bind_enabled_from(feature_list, 'value')
+    with ui.row().classes('w-full justify-between'):
+        ui.button('Back', on_click=lambda: ui.navigate.to('/page1'))
+        ui.button('Next', on_click=handle_next_page2).bind_enabled_from(feature_list, 'value')

@@ -120,7 +120,7 @@ def get_regions_with_attribute():
     filtered_df = region_list_df[region_list_df['attribute'].apply(matches)]
     return filtered_df
 
-def extract_spots():
+def extract_spots(progress_callback=None):
     '''Extracts feature intensities for all spots in one or more regions and exports them to file.
 
         Regions are either those matching state.attribute (if set) or all top-level 
@@ -131,27 +131,35 @@ def extract_spots():
         Reads from state: dataset, feature_list, attribute, normalization, 
         export_type, output_path
     '''
+    # Helper function for user progress reporting
+    def report(message):
+        if progress_callback: progress_callback(message)
+
     ## Get features in feature list
+    report('Loading features...')
     features =  state.dataset.feature_table.get_features(feature_list_name=state.feature_list)
     print(type(features))       #debug
     print(features)     #debug
     
     ## Get list of regions based on whether attribute was passed or not
-    print('Getting region(s)...')
+    report('Finding regions...')
     if state.attribute:
         region_list = get_regions_with_attribute()
     else: 
         region_list = get_root_region()
     
     ## Extract intensities for each spot
+    total = len(region_list)
     intensities = []
-    for index, region in region_list.iterrows(): 
+    for i, (_, region) in enumerate(region_list.iterrows()):
+        report(f'Processing region {i + 1} of {total}: {region["name"]}') 
         region_spots = get_intensities_of_region(region['id'], features)
         region_spots['regionId'] = region['id']
         region_spots['regionName'] = region['name']
         region_spots['attributes'] = json.dumps(region['attribute'])
         intensities.append(region_spots)
 
+    report('Combining and saving file...')
     intensities = pd.concat(intensities, ignore_index=True)
 
     ## Export intensities 

@@ -7,14 +7,12 @@ from nicegui import ui, run
 from logic import get_feature_lists, get_normalization_types
 import state
 
-exe_path = r'C:\Users\AngelLab\Desktop\SCiLS Lab\scilsMsServer.exe'         # Need to change for different computers
-
 @ui.page('/page1')
 def page1():
 # Event handler(s)
     def _open_session_blocking(slx_path):
         "Runs in a worker thread, safe to block here"
-        session = LocalSession(slx_path, executable=state.EXE_PATH)
+        session = LocalSession(slx_path, executable=state.EXE_PATH, override_filesystem_check=True)
         session.__enter__()
         state.dataset = session.dataset_proxy
         feature_lists = get_feature_lists()
@@ -37,11 +35,13 @@ def page1():
             state.session = None
 
         try:
+            loading_label.text = 'Loading SCiLS file...'
             state.session, state.feature_lists, state.normalization_types = await run.io_bound(
                 _open_session_blocking, state.slx_path) 
         except Exception as e:
             ui.notify(f'Failed to open SCiLS session: {e}', type='negative')
             print(f'LocalSession error: {e!r}')
+            btn.props(remove='loading')
             state.session = None
             return
    
@@ -55,7 +55,7 @@ def page1():
 
     slx_path = ui.input(label='Path to .slx file:', placeholder=r'ex. C:\Users\AngelLab\Desktop\slcc_heavy.slx')
     ui.label('Note: You cannot extract data from an .slx file that is actively open on your computer.')
-
+    loading_label = ui.label('')
     ui.button('Next', on_click=lambda e: handle_next_page1(e.sender)).bind_enabled_from(slx_path, 'value')
 
 
